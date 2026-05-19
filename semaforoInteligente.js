@@ -79,3 +79,5 @@ async function iniciarSemaforo(via) {
 
 // Iniciar a execução
 iniciarSemaforo(vias.A);
+
+//
