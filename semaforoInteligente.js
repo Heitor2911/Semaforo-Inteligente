@@ -9,12 +9,13 @@ const EstadosPossiveis = {
     VERDE_VIA_B: "verde_via_b",
     AMARELO_VIA_A: "amarelo_via_a",
     AMARELO_VIA_B: "amarelo_via_b",
-    VERMELHO: "vermelho"
+    VERMELHO_VIA_A: "vermelho_via_a",
+    VERMELHO_VIA_B: "vermelho_via_b"
 };
 
 const vias = {
     A: { estado: EstadosPossiveis.VERDE_VIA_A, veiculos: VeiculosViaA, nome: "Vertical" },
-    B: { estado: EstadosPossiveis.VERMELHO, veiculos: VeiculosViaB, nome: "Horizontal" }
+    B: { estado: EstadosPossiveis.VERMELHO_VIA_B, veiculos: VeiculosViaB, nome: "Horizontal" }
 };
 
 let TempoVerde = 5000, TempoVermelho = 5000, TempoAmarelo = 2000;
@@ -54,7 +55,11 @@ async function iniciarSemaforo(via) {
     console.log(`[${via.nome}] ATENÇÃO: Sinal Amarelo!`);
     await esperar(TempoAmarelo); // O programa espera aqui 2 segundos
 
-    via.estado = EstadosPossiveis.VERMELHO;
+    if (via === vias.A) {
+        via.estado = EstadosPossiveis.VERMELHO_VIA_A;
+    } else {
+        via.estado = EstadosPossiveis.VERMELHO_VIA_B;
+    }
     console.log(`[${via.nome}] PARE: Sinal Vermelho.`);
     
     // Liberação dos pedestres na via 
