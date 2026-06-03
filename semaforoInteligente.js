@@ -5,12 +5,12 @@ const VeiculosViaB = new Set(["H1", "H2", "H3"]);
 const Pedestres = new Set(["P1", "P2", "P3"]);
 
 const EstadosPossiveis = {
-    VERDE_VIA_A: "verde_via_a",
-    VERDE_VIA_B: "verde_via_b",
-    AMARELO_VIA_A: "amarelo_via_a",
-    AMARELO_VIA_B: "amarelo_via_b",
-    VERMELHO_VIA_A: "vermelho_via_a",
-    VERMELHO_VIA_B: "vermelho_via_b"
+    VERDE_VIA_A: "10000101",
+    AMARELO_VIA_A: "01000101",
+    VERDE_VIA_B: "00110010",
+    AMARELO_VIA_B: "00101010",
+    VERMELHO_VIA_A: "00110010",
+    VERMELHO_VIA_B: "10000101"
 };
 
 const vias = {
