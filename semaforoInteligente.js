@@ -1,5 +1,7 @@
 // Semáforo Inteligente - Duas vias sendo uma vertical e outra horizontal
 
+const readline = require('readline');
+
 const VeiculosViaA = new Set(["V1", "V2", "V3"]);
 const VeiculosViaB = new Set(["H1", "H2", "H3"]);
 const Pedestres = new Set(["P1", "P2", "P3"]);
@@ -69,20 +71,54 @@ async function iniciarSemaforo(via) {
     // Troca de Via
     if (via === vias.A) {
         // Se terminou a Via A, passa para a B
-        iniciarSemaforo(vias.B);
+        return await iniciarSemaforo(vias.B);
     } else {
-        // Se finalizou a Via B, retorna para a A
-        ContadorCiclos++;
-        if (ContadorCiclos < CiclosDesejados) {
-            iniciarSemaforo(vias.A);
-        } else {
-            console.log("\n--- Ciclo finalizado. Semáforo desligado. ---");
-            SemaforoAtivo = false;
-        }
+        SemaforoAtivo = false;
     }
 }
 
-// Iniciar a execução
-iniciarSemaforo(vias.A);
+function perguntarAmbulancia() {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
 
-//
+    return new Promise(resolve => {
+        rl.question('\n[SISTEMA] Deseja simular a aproximação de uma ambulância? (s/n): ', (resposta) => {
+            rl.close();
+            resolve(resposta.toLowerCase() === 's');
+        });
+    });
+}
+
+// Iniciar a execução
+async function executarSemaforo() {
+    await iniciarSemaforo(vias.A);
+
+    const temAmbulancia = await perguntarAmbulancia();
+
+        if (temAmbulancia) {
+            console.log("\n Ambulância detectada!");
+            console.log(" Fechando todos os sinais para a passagem da ambulância...");
+
+            vias.A.estado = "00100100";
+            vias.B.estado = "00100100";
+
+            console.log("Aguardando passagem da ambulância...");
+            await esperar(7000); // Tempo para a ambulância passar
+
+            console.log("Ambulância passou. Retornando ao ciclo normal...");
+        } else {
+            console.log("\n Nenhuma ambulância detectada.");
+        }
+
+         ContadorCiclos++;
+        if (ContadorCiclos < CiclosDesejados) {
+            return await iniciarSemaforo(vias.A);
+        } else {
+            console.log("\n--- Ciclo finalizado. Semáforo desligado. ---");
+            
+        }
+}
+
+executarSemaforo();
