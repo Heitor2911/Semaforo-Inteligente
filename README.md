@@ -9,9 +9,9 @@ Os 3 bits da esquerda (mais significativos) controlam a **Via A (Vertical)**, e 
 
 ### Mapeamento dos Bits
 
-        VIA A (Vertical)        |    VIA B (Horizontal)          |  Pedestres
-  Verde   | Amarelo  | Vermelho |  Verde   | Amarelo  | Vermelho | Pedestre | Pedestre
- (Bit 5)  | (Bit 4)  | (Bit 3)  | (Bit 2)  | (Bit 1)  | (Bit 0)  | Via A    | Via B
+        VIA A (Vertical)        |    VIA B (Horizontal)          |             Pedestres
+  Verde   | Amarelo  | Vermelho |  Verde   | Amarelo  | Vermelho | Pedestre        | Pedestre
+ (Bit 7)  | (Bit 6)  | (Bit 5)  | (Bit 4)  | (Bit 3)  | (Bit 2)  | Via A (Bit 1)   | Via B (Bit 0)
 
     |          |          |          |          |          |          |           |
    0 / 1      0 / 1      0 / 1      0 / 1      0 / 1      0 / 1      0 / 1       0 / 1
