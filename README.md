@@ -27,3 +27,32 @@ Via A Amarela(B Fechada):    Amarelo|   Vermelho |  01000101
 Via B Verde(A Fechada):	    Vermelho|	 Verde	 |  00110010
 
 Via B Amarela(A Fechada):	 Vermelho|	Amarelo	 |  00101010 
+
+## Como o Código Utiliza as Regras Lógicas (AND, OR, NOT)
+
+Embora o programa controle o semáforo usando estruturas de decisão (`if` e `else`), ainda funciona a lógica computacional. Abaixo está a explicação de como cada operador atua no sistema:
+
+
+### Operador NOT
+O operador **NOT** serve para inverter um valor ou fazer uma verificação de segurança. No código, ele aparece no uso do símbolo `!`:
+
+ Onde está no código: `if (!SemaforoAtivo) return;`
+ Explicação: O programa lê isso como: *"Se o semáforo **NÃO** estiver ativo, pare a execução imediatamente"*. Ele nega a condição para criar uma trava de segurança.
+ Nos bits: Quando uma via recebe o sinal verde (`1`), a outra obrigatoriamente recebe o sinal vermelho (`0`), aplicando uma negação lógica de estados para evitar batidas.
+
+
+### Operador AND
+O operador **AND** exige que **todas** as condições sejam verdadeiras ao mesmo tempo para que algo aconteça. 
+
+ Onde está no código: Na lógica de encerramento do loop e na transição de turnos.
+ Explicação: Para que o semáforo continue funcionando e reinicie o ciclo na Via A, o sistema valida duas condições juntas: 
+   O número de ciclos atuais deve ser menor que o desejado **E** o semáforo precisa continuar ativo. Se uma dessas duas coisas for falsa, o sistema desliga.
+ Na segurança: Os pedestres de uma via só são liberados se o semáforo dos carros estiver vermelho **E** o tempo de espera for atingido.
+
+
+### Operador OR
+O operador **OR** define que apenas **uma** das condições precisa ser verdadeira para o sistema tomar um caminho. Ele dita a alternância das vias.
+
+Onde está no código: Nas estruturas `if (via === vias.A) { ... } else { ... }`
+Explicação: O semáforo funciona por escolha excludente. O programa avalia: *"A via atual é a Via A? Se sim, faça isso. Se não (ou seja, se for a Via B), faça aquilo"*. O fluxo segue por um caminho **OU** por outro.
+Nos bits: Na nossa tabela de 8 bits, as luzes são ligadas de forma combinada. Por exemplo, o estado `VERDE_VIA_A` (`10000101`) diz para o painel acender o Verde da Via A **OU** o Vermelho da Via B **E** o sinal de pedestres correspondente.
