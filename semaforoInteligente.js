@@ -1,9 +1,6 @@
 // Semáforo Inteligente - Duas vias sendo uma vertical e outra horizontal
-
 const readline = require('readline');
 
-const VeiculosViaA = new Set(["V1", "V2", "V3"]);
-const VeiculosViaB = new Set(["H1", "H2", "H3"]);
 const Pedestres = new Set(["P1", "P2", "P3"]);
 
 const EstadosPossiveis = {
@@ -15,39 +12,29 @@ const EstadosPossiveis = {
     VERMELHO_VIA_B: "10000101"
 };
 
+
 const vias = {
-    A: { estado: EstadosPossiveis.VERDE_VIA_A, veiculos: VeiculosViaA, nome: "Vertical" },
-    B: { estado: EstadosPossiveis.VERMELHO_VIA_B, veiculos: VeiculosViaB, nome: "Horizontal" }
+    A: { estado: EstadosPossiveis.VERDE_VIA_A, veiculos: [], nome: "Vertical", prefixo: "V" },
+    B: { estado: EstadosPossiveis.VERMELHO_VIA_B, veiculos: [], nome: "Horizontal", prefixo: "H" }
 };
 
 let TempoVerde = 5000, TempoVermelho = 5000, TempoAmarelo = 2000;
-let SemaforoAtivo = true;
-let ContadorCiclos = 0;
-const CiclosDesejados = 1;
+const CiclosDesejados = 2; // Coloquei 2 para podermos testar a mudança de veículos!
 
 // função para simular o tempo de espera (delay) usando Promises
 const esperar = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Função para iniciar o semáforo em uma via, em seguida alternar para a outra via após o ciclo completo
 async function iniciarSemaforo(via) {
-    if (!SemaforoAtivo) return;
-
-    let outraVia;
-    if (via === vias.A) {
-        outraVia = vias.B;
-    } else {
-        outraVia = vias.A;
-    }
-
-    // iniciando na via A
     if (via === vias.A) {
         via.estado = EstadosPossiveis.VERDE_VIA_A;
     } else {
         via.estado = EstadosPossiveis.VERDE_VIA_B;
     }
     console.log(`\n--- [VIA ${via.nome}] FICOU VERDE ---`);
-    console.log(`Veículos liberados: ${Array.from(via.veiculos).join(", ")}`);
-    await esperar(TempoVerde); // O programa espera aqui 5 segundos
+    
+    // Agora exibe os veículos que foram gerados especificamente para esta rodada
+    console.log(`Veículos liberados: ${via.veiculos.join(", ")}`);
+    await esperar(TempoVerde);
 
     if (via === vias.A) {
         via.estado = EstadosPossiveis.AMARELO_VIA_A;
@@ -55,7 +42,7 @@ async function iniciarSemaforo(via) {
         via.estado = EstadosPossiveis.AMARELO_VIA_B;
     }
     console.log(`[${via.nome}] ATENÇÃO: Sinal Amarelo!`);
-    await esperar(TempoAmarelo); // O programa espera aqui 2 segundos
+    await esperar(TempoAmarelo);
 
     if (via === vias.A) {
         via.estado = EstadosPossiveis.VERMELHO_VIA_A;
@@ -64,17 +51,8 @@ async function iniciarSemaforo(via) {
     }
     console.log(`[${via.nome}] PARE: Sinal Vermelho.`);
     
-    // Liberação dos pedestres na via 
     console.log(`[PEDESTRES] Liberados na via ${via.nome}: ${Array.from(Pedestres).join(", ")}`);
-    await esperar(TempoVermelho); // O programa espera aqui 5 segundos
-
-    // Troca de Via
-    if (via === vias.A) {
-        // Se terminou a Via A, passa para a B
-        return await iniciarSemaforo(vias.B);
-    } else {
-        SemaforoAtivo = false;
-    }
+    await esperar(TempoVermelho);
 }
 
 function perguntarAmbulancia() {
@@ -84,18 +62,36 @@ function perguntarAmbulancia() {
     });
 
     return new Promise(resolve => {
-        rl.question('\n[SISTEMA] Deseja simular a aproximação de uma ambulância? (s/n): ', (resposta) => {
+        rl.question('\n[SISTEMA] Deseja simular a aproximação de uma ambulância para o próximo ciclo? (s/n): ', (resposta) => {
             rl.close();
             resolve(resposta.toLowerCase() === 's');
         });
     });
 }
 
-// Iniciar a execução
-async function executarSemaforo() {
-    await iniciarSemaforo(vias.A);
+// Função auxiliar para gerar dinamicamente os carros com base no número do ciclo
+function gerarVeiculosParaO_Ciclo(cicloAtual) {
+    let inicio = (cicloAtual - 1) * 3 + 1;
 
-    const temAmbulancia = await perguntarAmbulancia();
+    vias.A.veiculos = [`${vias.A.prefixo}${inicio}`, `${vias.A.prefixo}${inicio + 1}`, `${vias.A.prefixo}${inicio + 2}`];
+    vias.B.veiculos = [`${vias.B.prefixo}${inicio}`, `${vias.B.prefixo}${inicio + 1}`, `${vias.B.prefixo}${inicio + 2}`];
+}
+
+async function executarSemaforo() {
+    
+    for (let contador = 1; contador <= CiclosDesejados; contador++) {
+        console.log(`INICIANDO CICLO CHAVE Nº ${contador}/${CiclosDesejados}`);
+        
+        gerarVeiculosParaO_Ciclo(contador);
+
+        // 1. Roda a Via A
+        await iniciarSemaforo(vias.A);
+
+        // 2. Roda a Via B
+        await iniciarSemaforo(vias.B);
+
+        // 3. Pergunta da ambulância ao final de cada ciclo completo
+        const temAmbulancia = await perguntarAmbulancia();
 
         if (temAmbulancia) {
             console.log("\n Ambulância detectada!");
@@ -104,21 +100,16 @@ async function executarSemaforo() {
             vias.A.estado = "00100100";
             vias.B.estado = "00100100";
 
-            console.log("Aguardando passagem da ambulância...");
-            await esperar(7000); // Tempo para a ambulância passar
+            console.log(" Aguardando passagem da ambulância...");
+            await esperar(7000); 
 
-            console.log("Ambulância passou. Retornando ao ciclo normal...");
+            console.log(" Ambulância passou. Preparando próximo ciclo normal...");
         } else {
             console.log("\n Nenhuma ambulância detectada.");
         }
+    }
 
-         ContadorCiclos++;
-        if (ContadorCiclos < CiclosDesejados) {
-            return await iniciarSemaforo(vias.A);
-        } else {
-            console.log("\n--- Ciclo finalizado. Semáforo desligado. ---");
-            
-        }
+    console.log("\n--- Ciclos finalizados. Semáforo desligado. ---");
 }
 
 executarSemaforo();
